@@ -5,8 +5,11 @@ import com.shpp.cs.a.console.TextProgram;
 public class Assignment5Part1 extends TextProgram {
     // Starting position for vowel letters.
     private static final int START_POSITION_VOWEL_LETTER = -2;
+    // Array of vowel letters.
+    private static final char[] VOWEL_LETTERS = {'a', 'e', 'i', 'o', 'u', 'y'};
 
     // The method of launching the program.
+    @Override
     public void run() {
         /* Repeatedly prompt the user for a word and print out the estimated
          * number of syllables in that word.
@@ -31,22 +34,20 @@ public class Assignment5Part1 extends TextProgram {
      * Then, if the value of the flag variable is true, the result value is incremented by one.
      * At the end of all the cycles, the value is returned if the result was zero,
      * then the value will be incremented by one, if it is not zero, then this value is returned.
+     *
      * @param word A string containing a single word.
      * @return An estimate of the number of syllables in that word.
      */
     private int syllablesInWord(String word) {
         int result = 0, vowelLetterPosition = START_POSITION_VOWEL_LETTER;
         boolean singleVowel;
-        char[] vowelLetters = {'a', 'e', 'i', 'o', 'u', 'y'};
         word = word.toLowerCase();
         for (int i = 0; i < word.length(); i++) {
-            for (char ch : vowelLetters) {
-                if (word.charAt(i) == ch && !(ch == vowelLetters[1] && i == word.length() - 1)) {
+            for (char ch : VOWEL_LETTERS) {
+                if (word.charAt(i) == ch && !(ch == VOWEL_LETTERS[1] && i == word.length() - 1)) {
                     singleVowel = vowelLetterPosition + 1 != i;
                     vowelLetterPosition = i;
-                    if (singleVowel) {
-                        result++;
-                    }
+                    if (singleVowel) { result++; }
                 }
             }
         }
