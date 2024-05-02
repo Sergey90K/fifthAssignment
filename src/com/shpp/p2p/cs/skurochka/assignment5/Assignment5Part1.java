@@ -47,9 +47,7 @@ public class Assignment5Part1 extends TextProgram {
                 if (word.charAt(i) == ch && !(ch == VOWEL_LETTERS[1] && i == word.length() - 1)) {
                     singleVowel = vowelLetterPosition + 1 != i;
                     vowelLetterPosition = i;
-                    if (singleVowel) {
-                        result++;
-                    }
+                    if (singleVowel) { result++; }
                 }
             }
         }
