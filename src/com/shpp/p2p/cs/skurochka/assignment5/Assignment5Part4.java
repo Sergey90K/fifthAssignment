@@ -17,7 +17,7 @@ public class Assignment5Part4 extends TextProgram {
     // A regular expression to check for quotes.
     private static final String CVS_REGEX_FOR_CHECK_MARKS = "\"";
     // Placement of the file.
-    private static final String FILE_NAME = "data2.csv";
+    private static final String FILE_NAME = "data.csv";
     // The index of the column to be displayed.
     private static final int COLUMN_INDEX = 0;
 
@@ -26,7 +26,7 @@ public class Assignment5Part4 extends TextProgram {
         // Checking the method for output results.
         System.out.println(extractColumn(FILE_NAME, COLUMN_INDEX));
         // Checking the method for the number of words in the answer.
-        System.out.println(extractColumn(FILE_NAME, COLUMN_INDEX).size());
+        // System.out.println(extractColumn(FILE_NAME, COLUMN_INDEX).size());
     }
 
     /*
@@ -48,8 +48,7 @@ public class Assignment5Part4 extends TextProgram {
      * Then comes the error handling blocks. Then there is a null value return if an error occurred during the method.
      * */
     private ArrayList<String> extractColumn(String filename, int columnIndex) {
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filename))) {
             ArrayList<String> result = new ArrayList<>();
             String readinessString;
             while ((readinessString = bufferedReader.readLine()) != null) {
@@ -64,7 +63,6 @@ public class Assignment5Part4 extends TextProgram {
                     }
                 }
             }
-            bufferedReader.close();
             return result;
         } catch (FileNotFoundException e) {
             System.out.println(" The file was not found ");

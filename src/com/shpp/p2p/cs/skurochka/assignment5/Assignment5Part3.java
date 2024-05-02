@@ -112,15 +112,13 @@ public class Assignment5Part3 extends TextProgram {
      * And in the end, the value null is returned if the method did not work correctly and received an error.
      * */
     private ArrayList<String> readDictionary() {
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(DICTIONARY_FILE));
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(DICTIONARY_FILE))) {
             ArrayList<String> result = new ArrayList<>();
             while (true) {
                 String word = bufferedReader.readLine();
                 if (word == null) { break; }
                 result.add(word);
             }
-            bufferedReader.close();
             return result;
         } catch (FileNotFoundException e) {
             System.out.println(" You have placed the dictionary file in the wrong location. ");
