@@ -47,10 +47,27 @@ public class Assignment5Part1 extends TextProgram {
                 if (word.charAt(i) == ch && !(ch == VOWEL_LETTERS[1] && i == word.length() - 1)) {
                     singleVowel = vowelLetterPosition + 1 != i;
                     vowelLetterPosition = i;
-                    if (singleVowel) { result++; }
+                    if (singleVowel) {
+                        result++;
+                    }
                 }
             }
         }
-        return result != 0 ? result : ++result;
+        return getResult(result, word);
+    }
+
+    /*
+     * A method of getting the result depending on the previous result and word size.
+     * If the word size is greater than zero, the previous result is checked,
+     * and if it is equal to zero, the result is transferred, increased by one,
+     * if the previous result was greater than zero, it will be returned unchanged.
+     * If the word size is zero, then the input value of the previous result is returned.
+     * */
+    private int getResult(int result, String word) {
+        if (word.length() != 0) {
+            return result != 0 ? result : ++result;
+        } else {
+            return result;
+        }
     }
 }
