@@ -10,23 +10,21 @@ import java.util.ArrayList;
 public class Assignment5Part4 extends TextProgram {
     // Regular expressions to separate strings.
     private static final String CVS_REGEX = ",|;";
-    // Regular expressions to separate strings with quotation marks.
-    private static final String CVS_REGEX_WITH_MARKS = ",\"\"|;\"\"";
-    // Regular expressions for removing quotes.
-    private static final String CVS_REGEX_FOR_DELETE_MARKS = "\"\"|\"";
     // A regular expression to check for quotes.
     private static final String CVS_REGEX_FOR_CHECK_MARKS = "\"";
+    // A regular expression to separate strings with quotes.
+    private static final String CVS_REGEX_FOR_STRING_WITH_QUOTE = "\",|,\"|\";|;\"";
     // Placement of the file.
-    private static final String FILE_NAME = "data.csv";
+    private static final String FILE_NAME = "data2.csv";
     // The index of the column to be displayed.
-    private static final int COLUMN_INDEX = 0;
+    private static final int COLUMN_INDEX = 3;
 
     // The method of launching the program.
     public void run() {
         // Checking the method for output results.
         System.out.println(extractColumn(FILE_NAME, COLUMN_INDEX));
         // Checking the method for the number of words in the answer.
-        // System.out.println(extractColumn(FILE_NAME, COLUMN_INDEX).size());
+        //System.out.println(extractColumn(FILE_NAME, COLUMN_INDEX).size());
     }
 
     /*
@@ -37,14 +35,13 @@ public class Assignment5Part4 extends TextProgram {
      * Then a variable is created to store the read string.
      * A loop is started that will continuously read the lines until
      * they end in the file and assign them to the variable.
-     * Then it checks whether the string has quotes at the beginning of the string.
-     * If there are, the first pair of quotes is removed.
-     * Then the remaining quotes are removed again and the result is written to the collection.
-     * If the condition is not met, the string is checked for quotes at all,
-     * and if there are no quotes, the string is split using a regular expression and the
-     * necessary part is obtained and put into the collection.
-     * If there are quotes in the string, then the data is obtained by the following regular expression.
-     * Then the reader buffer is opened. The value of the collection is returned at the point of the method call.
+     * Then it checks whether the string contains quotes.
+     * If not, the string is divided into an array of strings using a
+     * regular expression and assigned to the resulting variable.
+     * If the condition is not met and the string contains quotes,
+     * the string is divided into an array of strings using a regular expression.
+     * Then the value obtained by the method that removes unnecessary quotes
+     * in the resulting array of strings is assigned to the resulting collection.
      * Then comes the error handling blocks. Then there is a null value return if an error occurred during the method.
      * */
     private ArrayList<String> extractColumn(String filename, int columnIndex) {
@@ -52,15 +49,11 @@ public class Assignment5Part4 extends TextProgram {
             ArrayList<String> result = new ArrayList<>();
             String readinessString;
             while ((readinessString = bufferedReader.readLine()) != null) {
-                if (readinessString.indexOf(CVS_REGEX_FOR_CHECK_MARKS) == 0) {
-                    readinessString = (readinessString.split(CVS_REGEX_WITH_MARKS)[columnIndex]);
-                    result.add(readinessString.split(CVS_REGEX_FOR_DELETE_MARKS)[countIndex(readinessString)]);
+                if (!readinessString.contains(CVS_REGEX_FOR_CHECK_MARKS)) {
+                    result.add(readinessString.split(CVS_REGEX)[columnIndex]);
                 } else {
-                    if (!readinessString.contains(CVS_REGEX_FOR_CHECK_MARKS)) {
-                        result.add(readinessString.split(CVS_REGEX)[columnIndex]);
-                    } else {
-                        result.add(readinessString.split(CVS_REGEX_FOR_CHECK_MARKS)[columnIndex]);
-                    }
+                    String[] midResult = readinessString.split(CVS_REGEX_FOR_STRING_WITH_QUOTE);
+                    result.add(removeAllQuotationMarks(midResult)[columnIndex]);
                 }
             }
             return result;
@@ -73,10 +66,51 @@ public class Assignment5Part4 extends TextProgram {
     }
 
     /*
-     * A method for calculating the index of a substring that receives a string.
-     * Returns the index value depending on the position of the regular expression in the substring.
+     * A method for removing quotes from a single string.
+     * First, the index of the quotes in the string is obtained.
+     * Then the condition is checked, if the index is not equal to minus one,
+     * a string builder is created that accepts the input string.
+     * Then the character following the quote index is removed from the string.
+     * Then the string with the removed quotes is assigned to the input string.
+     * Then the following condition is checked, whether the string still has quotes,
+     * if there are quotes, the same method is called to remove the quotes.
+     * Then the resulting string is returned to the point where the method was called.
      * */
-    private int countIndex(String inputString) {
-        return inputString.indexOf(CVS_REGEX_FOR_CHECK_MARKS) == 0 ? 1 : 0;
+    private String removeQuotationInString(String inputString) {
+        int index = inputString.indexOf(CVS_REGEX_FOR_CHECK_MARKS);
+        if (index != -1) {
+            StringBuilder str = new StringBuilder(inputString);
+            str.deleteCharAt(index);
+            inputString = str.toString();
+        }
+        if (inputString.indexOf(CVS_REGEX_FOR_CHECK_MARKS) != -1) {
+            inputString = removeQuotationInString(inputString);
+        }
+        return inputString;
+    }
+
+    /*
+     * Method for removing quotes in an array of strings.
+     * In the middle, a loop is started that sequentially loops through the entire array of strings.
+     * Then a variable is compared with the number of quotes in the string.
+     * Then a loop is launched that checks each letter of the word with the corresponding quotes,
+     * and if it finds quotes, it increments the counter by one. Then, at the end of this loop,
+     * the counter is checked and if it is greater than zero,
+     * a method is called that will remove all quotes from the string.
+     * After the top-level loop completes, the corrected array is returned to the point of the method call.
+     * */
+    private String[] removeAllQuotationMarks(String[] midResult) {
+        for (int i = 0; i < midResult.length; i++) {
+            int counter = 0;
+            for (int j = 0; j < midResult[i].length(); j++) {
+                if (midResult[i].charAt(j) == '\"') {
+                    counter++;
+                }
+            }
+            if (counter > 0) {
+                midResult[i] = removeQuotationInString(midResult[i]);
+            }
+        }
+        return midResult;
     }
 }
