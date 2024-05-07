@@ -14,17 +14,23 @@ public class Assignment5Part4 extends TextProgram {
     private static final String CVS_REGEX_FOR_CHECK_MARKS = "\"";
     // A regular expression to separate strings with quotes.
     private static final String CVS_REGEX_FOR_STRING_WITH_QUOTE = "\",|,\"|\";|;\"";
+    // A regular expression for separating strings with double quotes.
+    private static final String CVS_REGEX_FOR_DUAL_QUOTE = "\"\"";
+    // A mark to indicate the presence of double quotes.
+    private static final char CVS_REGEX_FOR_RESTORATION_QUOTE = '!';
+    // Double quotation marks to restore the final line.
+    private static final char CVS_REGEX_QUOTE = '"';
+    // Comma to restore the final line.
+    private static final char CVS_REGEX_COMMA = ',';
     // Placement of the file.
     private static final String FILE_NAME = "data2.csv";
     // The index of the column to be displayed.
-    private static final int COLUMN_INDEX = 3;
+    private static final int COLUMN_INDEX = 1;
 
     // The method of launching the program.
     public void run() {
         // Checking the method for output results.
         System.out.println(extractColumn(FILE_NAME, COLUMN_INDEX));
-        // Checking the method for the number of words in the answer.
-        //System.out.println(extractColumn(FILE_NAME, COLUMN_INDEX).size());
     }
 
     /*
@@ -52,6 +58,7 @@ public class Assignment5Part4 extends TextProgram {
                 if (!readinessString.contains(CVS_REGEX_FOR_CHECK_MARKS)) {
                     result.add(readinessString.split(CVS_REGEX)[columnIndex]);
                 } else {
+                    readinessString = modifyLineForSeparation(replaceQuote(readinessString));
                     String[] midResult = readinessString.split(CVS_REGEX_FOR_STRING_WITH_QUOTE);
                     result.add(removeAllQuotationMarks(midResult)[columnIndex]);
                 }
@@ -61,8 +68,78 @@ public class Assignment5Part4 extends TextProgram {
             System.out.println(" The file was not found ");
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ArrayIndexOutOfBoundsException e){
+            System.out.println(" Invalid column index ");
         }
         return null;
+    }
+
+    /*
+     * A method for modifying a string to split it correctly.
+     * First, a flag variable is created that will allow you to add upper quotes.
+     * Then the resulting string is created using a string builder.
+     * Then a loop is started to go through each letter of the string.
+     * First, the conditions for changing the flag are checked, and they are changed if the conditions are met.
+     * Then each letter is checked for commas and flag permission to add a character,
+     * if the conditions are met, a punctuation mark is added at the specified index.
+     * Then, after all operations are completed, the resulting string is returned to the method call point.
+     * */
+    private String modifyLineForSeparation(String string) {
+        boolean flagAllow = true;
+        StringBuilder resultString = new StringBuilder(string);
+        for (int i = 0; i < string.length(); i++) {
+            if (string.charAt(i) == CVS_REGEX_QUOTE && string.length() > i + 1 &&
+                    string.charAt(i + 1) != CVS_REGEX_FOR_RESTORATION_QUOTE) {
+                flagAllow = !flagAllow;
+            }
+            if (string.charAt(i) == CVS_REGEX_COMMA && flagAllow) {
+                resultString.insert(i + 1, CVS_REGEX_QUOTE);
+            }
+        }
+        return resultString.toString();
+    }
+
+    /*
+     * A method for replacing a special character with double quotes.
+     * First, the index of the first occurrence of the special character is obtained.
+     * If the special character is found, then the special character is
+     * removed at this index and then double quotes are added to this position.
+     * Then once again there is a check whether there are any more special characters,
+     * and if so, they are called using recursion to call the same method.
+     * At the end of the method, the changed string is returned to the point of the method call.
+     * */
+    private String restorationQuote(String inputString) {
+        int index = inputString.indexOf(CVS_REGEX_FOR_RESTORATION_QUOTE);
+        if (index > -1) {
+            StringBuilder str = new StringBuilder(inputString);
+            str.deleteCharAt(index);
+            inputString = str.insert(index, CVS_REGEX_QUOTE).toString();
+            if (inputString.indexOf(CVS_REGEX_FOR_RESTORATION_QUOTE) != -1) {
+                inputString = restorationQuote(inputString);
+            }
+        }
+        return inputString;
+    }
+
+    /*
+     * Method for adding a special character for two double quotes.
+     * First, the index of the first appearance of the double quotes is obtained.
+     * A new string is created. If the quotes are found,
+     * the special character is added immediately after the incremented index to the new string.
+     * Then it is checked again whether there are any more double quotes,
+     * and if so, the same method is called using recursion.
+     * At the end of the method, the changed string is returned to the point of the method call.
+     * */
+    private String replaceQuote(String inputString) {
+        int index = inputString.indexOf(CVS_REGEX_FOR_DUAL_QUOTE);
+        if (index > -1) {
+            StringBuilder str = new StringBuilder(inputString);
+            inputString = str.insert(++index, CVS_REGEX_FOR_RESTORATION_QUOTE).toString();
+            if (inputString.contains(CVS_REGEX_FOR_DUAL_QUOTE)) {
+                inputString = replaceQuote(inputString);
+            }
+        }
+        return inputString;
     }
 
     /*
@@ -83,7 +160,7 @@ public class Assignment5Part4 extends TextProgram {
             str.deleteCharAt(index);
             inputString = str.toString();
         }
-        if (inputString.indexOf(CVS_REGEX_FOR_CHECK_MARKS) != -1) {
+        if (inputString.contains(CVS_REGEX_FOR_CHECK_MARKS)) {
             inputString = removeQuotationInString(inputString);
         }
         return inputString;
@@ -103,12 +180,12 @@ public class Assignment5Part4 extends TextProgram {
         for (int i = 0; i < midResult.length; i++) {
             int counter = 0;
             for (int j = 0; j < midResult[i].length(); j++) {
-                if (midResult[i].charAt(j) == '\"') {
+                if (midResult[i].charAt(j) == CVS_REGEX_QUOTE) {
                     counter++;
                 }
             }
             if (counter > 0) {
-                midResult[i] = removeQuotationInString(midResult[i]);
+                midResult[i] = restorationQuote(removeQuotationInString(midResult[i]));
             }
         }
         return midResult;
